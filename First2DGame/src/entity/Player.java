@@ -16,7 +16,7 @@ public class Player extends Entity {
 	
 	public final int screenX;
 	public final int screenY;
-	
+	//Change from laptop KK xddd
 	public Player(GamePanel gp, KeyHandler keyH) {
 		this.gp = gp;
 		this.keyH = keyH;
