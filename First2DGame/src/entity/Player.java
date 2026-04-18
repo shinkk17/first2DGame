@@ -2,6 +2,7 @@ package entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -16,21 +17,26 @@ public class Player extends Entity {
 	
 	public final int screenX;
 	public final int screenY;
-	//Change from laptop KK xddd
 	public Player(GamePanel gp, KeyHandler keyH) {
 		this.gp = gp;
 		this.keyH = keyH;
 		
+		//Posicion inicial del personaje (centro de la pantalla)
 		screenX = gp.screenWidth/2 - (gp.tileSize/2);
 		screenY = gp.screenHeight/2 - (gp.tileSize/2);
-		
+		hitbox = new Rectangle();
+		hitbox.x = 15;
+		hitbox.y = 27;
+		hitbox.width = 24;
+		hitbox.height = 24;
+
 		setDefaultValues();
 		getPlayerImage();
 	}
 	public void setDefaultValues() {
 		
-		worldX = 100;
-		worldY = 100;
+		worldX = 464;
+		worldY = 384;
 		speed = 4;
 		direction = "right";
 	}
@@ -42,14 +48,14 @@ public class Player extends Entity {
 			up1 = ImageIO.read(getClass().getResourceAsStream("/player/playerLeft1.png"));
 			up2 = ImageIO.read(getClass().getResourceAsStream("/player/playerLeft1.png"));
 			
-			down1 = ImageIO.read(getClass().getResourceAsStream("/player/playerLeft1.png"));
-			down2 = ImageIO.read(getClass().getResourceAsStream("/player/playerLeft1.png"));
+			down1 = ImageIO.read(getClass().getResourceAsStream("/player/playerRight1.png"));
+			down2 = ImageIO.read(getClass().getResourceAsStream("/player/playerRight1.png"));
 			
 			left1 = ImageIO.read(getClass().getResourceAsStream("/player/playerLeft1.png"));
-			left2 = ImageIO.read(getClass().getResourceAsStream("/player/playerLeft2.png"));
+			left2 = ImageIO.read(getClass().getResourceAsStream("/player/playerLeft1.png"));
 			
 			right1 = ImageIO.read(getClass().getResourceAsStream("/player/playerRight1.png"));
-			right2 = ImageIO.read(getClass().getResourceAsStream("/player/playerRight2.png"));
+			right2 = ImageIO.read(getClass().getResourceAsStream("/player/playerRight1.png"));
 			
 			
 		} catch (IOException e) {
@@ -59,26 +65,42 @@ public class Player extends Entity {
 
 
 	public void update() {
-		
+		//Revisa la tecla que se toca para setear la direccion del jugador
 		if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
 			if (keyH.upPressed) {
 				direction = "up";
-				worldY -= speed;
 
 			} else if (keyH.downPressed) {
 				direction = "down";
-				worldY += speed;
 
 			} else if (keyH.leftPressed) {
 				direction = "left";
-				worldX -= speed;
 
 			} else if (keyH.rightPressed) {
 				direction = "right";
-				worldX += speed;
 			}
 			
+			//Revisar collision con tile
+			collisionOn = false;
+			gp.cChecker.checkTile(this);
 			
+			//Si la colision es false, el jugador se puede mover
+			if (!collisionOn) {
+				switch(direction) {
+				case "up":
+					worldY -= speed;
+					break;
+				case "down":
+					worldY += speed;
+					break;
+				case "right":
+					worldX += speed;
+					break;
+				case "left":
+					worldX -= speed;
+					break;
+				}
+			}
 			spriteCounter++;
 
 			if (spriteCounter > 10) {
@@ -139,5 +161,7 @@ public class Player extends Entity {
 			break;
 		}
 		g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+		g2.setColor(Color.red);
+		g2.drawRect(screenX + hitbox.x, screenY + hitbox.y, hitbox.width, hitbox.height);
 	}
 }
